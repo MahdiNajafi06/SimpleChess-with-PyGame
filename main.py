@@ -2,6 +2,8 @@ import pygame
 from sys import exit
 from Game.board import board
 from Game.move import crd_to_rowcol
+from Game.rules import is_check,is_checkmate,is_stalemate
+from Pieces.Piece import find_king
 from UI.board_renderer import draw_board, draw_valid_moves
 
 pygame.init()
@@ -44,6 +46,15 @@ while True:
                     else:
                         board.variable_update(selected_pos, click_pos)
                     turn = 'B' if turn == 'W' else 'W'
+                    # check, checkmate & stalemate state (informing state)
+                    king_pos = find_king(board, turn)
+                    if is_check(board, king_pos):
+                        print(f'{turn} king is in check')
+                    if is_checkmate(board, king_pos):
+                        print(f'{turn} has been checkmated')
+                    elif is_stalemate(board, king_pos):
+                        print(f'its stalemate')
+
                     selected_pos = None
                     selected_piece = None
                     valid_moves = []
