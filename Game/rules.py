@@ -82,15 +82,34 @@ def is_check(board, king_position):
     return False
 
 
-def is_checkmate(board, king, king_position):
-    if is_check(board, king_position):
-        king_valid_moves = king.get_valid_moves(board, king_position)
-        if len(king_valid_moves) == 0:
-            return True
+def _color_has_legal_move(board, color):
+    # True if any piece of `color` has at least one legal move available
+    for row in range(8):
+        for col in range(8):
+            piece = board.var[row][col]
+            if piece is not None and piece.color == color:
+                if piece.get_valid_moves(board, (row, col)):
+                    return True
     return False
 
 
+def is_checkmate(board, king_position):
+    king_row, king_col = king_position
+    king = board.var[king_row][king_col]
+
+    if not is_check(board, king_position):
+        return False  # can't be checkmate if you're not even in check
+
+    return not _color_has_legal_move(board, king.color)
 
 
+def is_stalemate(board, king_position):
+    king_row, king_col = king_position
+    king = board.var[king_row][king_col]
+
+    if is_check(board, king_position):
+        return False  # in check + no moves is checkmate, not stalemate
+
+    return not _color_has_legal_move(board, king.color)
 
 
