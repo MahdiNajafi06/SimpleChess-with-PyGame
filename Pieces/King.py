@@ -1,6 +1,6 @@
 from pygame import image
 from Game.rules import is_check
-from Pieces.Piece import Piece,BoardSnapshot
+from Pieces.Piece import Piece,BoardSnapshot,find_king
 
 class King(Piece):
     def __init__(self,color):
@@ -82,5 +82,5 @@ class King(Piece):
         var_copy[origin[0]][origin[1]] = None
 
         snapshot = BoardSnapshot(var_copy)
-        king_pos = self.find_king(snapshot)
+        king_pos = find_king(snapshot, self.color)
         return is_check(snapshot, king_pos)
