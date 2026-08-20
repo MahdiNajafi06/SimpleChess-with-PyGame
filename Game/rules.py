@@ -1,108 +1,115 @@
-def is_check(board, king, king_cordinate):
-        current_row, current_col = king_cordinate
+def is_check(board, king_position):
+    king_row, king_col = king_position
+    king = board.var[king_row][king_col]
 
-        Straight_directions = [
-            (-1, 0)  # up
-            (0, 1)  # right
-            (1, 0)  # down
-            (0, -1)  # left
-        ]
+    straight_directions = [
+        (-1, 0),  # up
+        (0, 1),   # right
+        (1, 0),   # down
+        (0, -1),  # left
+    ]
 
-        Diagonal_directions = [
-            (-1, 1)  # up/right
-            (1, 1)  # down/right
-            (1, -1)  # down/left
-            (-1, -1)  # up/left
-        ]
+    diagonal_directions = [
+        (-1, 1),   # up-right
+        (1, 1),    # down-right
+        (1, -1),   # down-left
+        (-1, -1),  # up-left
+    ]
 
-        jumps = [
-            (2, -1)  # 2down/1left
-            (2, 1)  # 2down/1right
-            (1, 2)  # 1down/2right
-            (1, -2)  # 1down/2left
-            (-1, 2)  # 1up/2right
-            (-1, -2)  # 1up/2left
-            (-2, 1)  # 2up/1right
-            (-2, -1)  # 2up/1left
-        ]
+    jumps = [
+        (2, -1),  # 2down/1left
+        (2, 1),  # 2down/1right
+        (1, 2),  # 1down/2right
+        (1, -2),  # 1down/2left
+        (-1, 2),  # 1up/2right
+        (-1, -2),  # 1up/2left
+        (-2, 1),  # 2up/1right
+        (-2, -1)  # 2up/1left
+    ]
 
-        pawn_directions = [
-            (-1, 1)  # up/right
-            (-1, -1)  # up/left
-            (1, -1)  # down/left
-            (1, 1)  # down/right
-        ]
+    # rook / queen horizontal checks
+    for row_dir, col_dir in straight_directions:
+        current_row = king_row + row_dir
+        current_col = king_col + col_dir
 
+        while 0 <= current_row <= 7 and 0 <= current_col <= 7:
+            target = board.var[current_row][current_col]
+            if target is not None:
+                if target.color != king.color and target.type in ('R', 'Q'):
+                    return True
+                break  # blocked — by a friendly piece, or a non-attacking enemy piece
+            current_row += row_dir
+            current_col += col_dir
 
-        for direction in Straight_directions:
-            current_row += direction[0]
-            current_col += direction[1]
+    # bishop / queen along diagonals
+    for row_dir, col_dir in diagonal_directions:
+        current_row = king_row + row_dir
+        current_col = king_col + col_dir
 
-            while 0 <= current_col <= 7 and 0 <= current_col <= 7:
-                target = board[current_row][current_col]
-                if target != None:
-                    if target.color != king.color:
-                        if target.type == 'R' or target.type == 'Q':
-                            return True
-                    else:
-                        break
-                current_row += direction[0]
-                current_col += direction[1]
+        while 0 <= current_row <= 7 and 0 <= current_col <= 7:
+            target = board.var[current_row][current_col]
+            if target is not None:
+                if target.color != king.color and target.type in ('B', 'Q'):
+                    return True
+                break
+            current_row += row_dir
+            current_col += col_dir
 
-        for direction in Diagonal_directions:
-            current_row += direction[0]
-            current_col += direction[1]
+    # knight jumps
+    for row_jump, col_jump in jumps:
+        current_row = king_row + row_jump
+        current_col = king_col + col_jump
 
-            while 0 <= current_col <= 7 and 0 <= current_col <= 7:
-                target = board[current_row][current_col]
-                if target != None:
-                    if target.color != king.color:
-                        if target.type == 'B' or target.type == 'Q':
-                            return True
-                    else:
-                        break
-                current_row += direction[0]
-                current_col += direction[1]
-
-        for jump in jumps:
-            current_row += direction[0]
-            current_col += direction[1]
-
-            if 0 <= current_col <= 7 and 0 <= current_col <= 7:
-                target = board[current_row][current_col]
-                if target != None:
-                    if target.color != king.color:
-                        if target.type == 'N':
-                            return True
-
-        count = 0
-        for direction in pawn_directions:
-            count += 1
-            if (count <= 2 and king.color == 'W') or (count > 2 and king.color == 'B'):
-                current_row += direction[0]
-                current_col += direction[1]
-
-                if 0 <= current_col <= 7 and 0 <= current_col <= 7:
-                    target = board[current_row][current_col]
-                    if target != None:
-                        if target.color != king.color:
-                            if target.type == 'P':
-                                return True
-
-def is_checkmate(board, king, king_cordinate):
-        if is_check(board, king_cordinate, king) == True:
-            king_valid_moves = king.get_valid_moves()
-            n = len(king_valid_moves)
-            out = 0
-            for king_move in king_valid_moves:
-                out = (out + 1) if check(board, king_move, king) == True else out
-            if out == n:
+        if 0 <= current_row <= 7 and 0 <= current_col <= 7:
+            target = board.var[current_row][current_col]
+            if target is not None and target.color != king.color and target.type == 'N':
                 return True
-        return False
+
+    # pawns — the two squares diagonally "ahead" of the king, from an attacker's point of view.
+    # a white king is attacked by black pawns sitting one row above it (black pawns move down);
+    # a black king is attacked by white pawns sitting one row below it (white pawns move up).
+    pawn_row_dir = -1 if king.color == 'W' else 1
+    for col_dir in (-1, 1):
+        current_row = king_row + pawn_row_dir
+        current_col = king_col + col_dir
+
+        if 0 <= current_row <= 7 and 0 <= current_col <= 7:
+            target = board.var[current_row][current_col]
+            if target is not None and target.color != king.color and target.type == 'P':
+                return True
+
+    # king is safe
+    return False
 
 
+def _color_has_legal_move(board, color):
+    # True if any piece of `color` has at least one legal move available
+    for row in range(8):
+        for col in range(8):
+            piece = board.var[row][col]
+            if piece is not None and piece.color == color:
+                if piece.get_valid_moves(board, (row, col)):
+                    return True
+    return False
 
 
+def is_checkmate(board, king_position):
+    king_row, king_col = king_position
+    king = board.var[king_row][king_col]
 
+    if not is_check(board, king_position):
+        return False  # can't be checkmate if you're not even in check
+
+    return not _color_has_legal_move(board, king.color)
+
+
+def is_stalemate(board, king_position):
+    king_row, king_col = king_position
+    king = board.var[king_row][king_col]
+
+    if is_check(board, king_position):
+        return False  # in check + no moves is checkmate, not stalemate
+
+    return not _color_has_legal_move(board, king.color)
 
 
