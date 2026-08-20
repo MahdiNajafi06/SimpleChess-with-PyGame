@@ -2,12 +2,15 @@ import pygame
 from sys import exit
 from Game.board import board
 from Game.move import crd_to_rowcol
-from UI.board_renderer import draw_board, draw_valid_moves
+from Game.rules import is_check,is_checkmate,is_stalemate
+from Pieces.Piece import find_king
+from UI.board_renderer import draw_board, draw_valid_moves, set_on_mouse_hover
+
 
 pygame.init()
 screen = pygame.display.set_mode(board.size)
 pygame.display.set_caption('Chess')
-#clock = pygame.time.Clock()
+clock = pygame.time.Clock()
 
 def give_second_MOUSEBUTTONDOWN():
     while True:
@@ -22,6 +25,15 @@ def give_second_MOUSEBUTTONDOWN():
 
 # start turn
 turn = 'W'
+
+
+# click-state
+selected_pos = None      # rowcol of the currently selected piece, or None
+selected_piece = None    # the piece obj currently selected, or None
+valid_moves = []         # cached valid moves for the selected piece
+#TOTAL_TIME = 300  # total time in seconds (5 minutes)
+#start_time = pygame.time.get_ticks()
+
 
 # main loop
 while True:
@@ -65,6 +77,10 @@ while True:
     # drawing funcs
     screen.blit(board.background, board.rect)
     draw_board(screen, board.var)
+    set_on_mouse_hover(screen, board.var, pygame.mouse.get_pos(), turn)
+    if selected_piece is not None:
+        draw_valid_moves(screen, valid_moves, board.var)
+
 
     pygame.display.update()
-    #clock.tick(60)
+    clock.tick(60)
