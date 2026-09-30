@@ -45,7 +45,7 @@ class King(Piece):
         ]
 
         # castling valid moves
-        if self.is_moved == False:
+        if self.is_moved == False and is_check(board, position) == False:
             for row_dir, col_dir in castling_directions:
                 current_row = row + row_dir
                 current_col = col + col_dir

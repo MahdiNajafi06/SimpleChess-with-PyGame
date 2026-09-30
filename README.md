@@ -8,9 +8,10 @@
 
 - ***Phase No.1:*** Raw Chess logics & movements implemented in a local co-op style. ✅
 - ***Phase No.2:*** Pot, Check, Mate & win-loss states and conditions for local co-op style
-       
-  (a complete in-person style Chess).
-- ***Phase No.3:*** additional Game-Modes (with AI & Online PvP) & also Main Menu.
+
+  (a complete in-person style Chess). ✅ 
+- ***Phase No.3:*** Main Menu and UI border options.
+- ***Phase No.4:*** additional Game-Modes (with AI & Online PvP)
 - ***Extra tasks:***
   - Better Assets.
   - Drag Move.

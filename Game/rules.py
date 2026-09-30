@@ -27,6 +27,17 @@ def is_check(board, king_position):
         (-2, -1)  # 2up/1left
     ]
 
+    king_places = [
+        (-1, 0),  # up
+        (0, 1),  # right
+        (1, 0),  # down
+        (0, -1),  # left
+        (-1, 1),   # up-right
+        (1, 1),    # down-right
+        (1, -1),   # down-left
+        (-1, -1)  # up-left
+    ]
+
     # rook / queen horizontal checks
     for row_dir, col_dir in straight_directions:
         current_row = king_row + row_dir
@@ -63,6 +74,16 @@ def is_check(board, king_position):
         if 0 <= current_row <= 7 and 0 <= current_col <= 7:
             target = board.var[current_row][current_col]
             if target is not None and target.color != king.color and target.type == 'N':
+                return True
+
+    # enemy king possible check - not allowed to move
+    for row_king, col_king in king_places:
+        current_row = king_row + row_king
+        current_col = king_col + col_king
+
+        if 0 <= current_row <= 7 and 0 <= current_col <= 7:
+            target = board.var[current_row][current_col]
+            if target is not None and target.color != king.color and target.type == 'K':
                 return True
 
     # pawns — the two squares diagonally "ahead" of the king, from an attacker's point of view.
